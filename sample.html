@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>音楽再生</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+
+<i id="playButton" class="fas fa-play" style="font-size: 24px; cursor: pointer;"></i>
+
+<audio id="music">
+  <source src="audio/rain01.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
+<script>
+
+
+
+
+
+  const playButton = document.getElementById('playButton');
+  const music = document.getElementById('music');
+
+  playButton.addEventListener('click', function() {
+    if (music.paused) {
+      music.play();
+      playButton.classList.remove('fa-play');
+      playButton.classList.add('fa-pause');
+    } else {
+      music.pause();
+      playButton.classList.remove('fa-pause');
+      playButton.classList.add('fa-play');
+    }
+  });
+</script>
+
+</body>
+</html>

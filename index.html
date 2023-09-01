@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>amaoto</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <!-- HTMLファイル内の<head>セクション -->
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* スタイルの設定 */
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('img/bg.jpg') center/cover no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      position: relative;
+      font-family: 'Noto Serif JP', serif;
+    }
+  </style>
+</head>
+<body>
+
+<div class="content">
+  <div id="logo-container">
+    <img id="app-logo" src="img/amaoto.svg" alt="logo">
+  </div>
+
+    <!-- 地図アイコン -->
+    <div class="left-icon icon-font" onclick="toMap()">
+        <i class="fa fa-map"></i>
+    </div>
+    <!-- 再生アイコン -->
+    <div class="center-icon icon-font">
+        <i id="playButton" class="fas fa-play" style="text-align: center;"></i>
+    </div>
+    <!-- カメラアイコン -->
+    <div class="right-icon icon-font" onclick="openCamera()">
+        <i class="fa fa-video"></i>
+    </div>
+</div>
+<!--
+<audio id="music">
+    <source src="audio/rain01.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+</audio>
+-->
+  
+<script>
+console.log("処理開始")
+
+function toMap() {
+  window.location.href = "map.html";
+}
+
+function openCamera() {
+    // カメラアイコンがクリックされたときの処理を追加
+    alert("カメラアイコンがクリックされました！");
+}
+
+
+//気象情報を取得
+function rain(){
+    // OpenWeatherMap APIキー
+    const apiKey = 'APIKEY';
+    // 位置情報（緯度と経度）
+    const latitude = 35.6895; // 例: 東京の緯度
+    const longitude = 139.6917; // 例: 東京の経度
+
+    // API呼び出し
+    const apiUrl = `https://api.openweathermap.org/data/3.0/onecall?lat=${latitude}&lon=${longitude}&appid=${apiKey}`;
+    fetch(apiUrl)
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        if (data.weather && data.weather[0] && data.weather[0].main === 'Rain') {
+        console.log('降水があります');
+        } else {
+        console.log('降水はありません');
+        }
+    })
+    .catch(error => {
+        console.error('API呼び出しエラー:', error);
+    });
+  }
+
+  const playButton = document.getElementById('playButton');
+  let music = null;
+  let soundEffects = {};
+  soundEffects[0] = new Audio('audio/rain01.mp3');
+  soundEffects[1] = new Audio('audio/rain02.mp3');
+  let cnt = 0;
+
+  playButton.addEventListener('click', function() {
+    if (music == null || music.paused) {
+      cnt++;
+      music = soundEffects[cnt%2];
+      music.play();
+      playButton.classList.remove('fa-play');
+      playButton.classList.add('fa-pause');
+    } else {
+      music.pause();
+      playButton.classList.remove('fa-pause');
+      playButton.classList.add('fa-play');
+    }
+});
+    
+
+</script>
+</body>
+</html>

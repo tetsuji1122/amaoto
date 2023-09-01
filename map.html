@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>amaoto</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <!-- HTMLファイル内の<head>セクション -->
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+    </style>
+
+</head>
+<body>
+    <div id="logo-container">
+        <img id="app-logo" src="img/amaoto.svg" alt="logo">
+        <div class="left-icon icon-font" onclick="toMain()">
+            <i class="fa fa-arrow-circle-left"></i>
+        </div>
+    </div>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        function toMain() {
+            window.location.href = "index.html";
+        }
+
+        let latitude = 35.6895; // 例: 東京の緯度
+        let longitude = 139.6917; // 例: 東京の経度
+
+        // 地図の初期化
+        var map = L.map('map').setView([latitude, longitude], 13); // 初期の中心座標とズームレベル
+
+        // タイルレイヤーの追加（OpenStreetMapのデフォルトタイル）
+        L.tileLayer('http://{s}.tile.stamen.com/{variant}/{z}/{x}/{y}.png', {
+            attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>',
+            variant: 'toner-lite'
+        }).addTo(map);
+
+        if ("geolocation" in navigator) {
+            // ブラウザがGeolocation APIをサポートしているか確認
+
+            // 位置情報を取得する関数
+            navigator.geolocation.getCurrentPosition(function (position) {
+                // 成功時のコールバック関数
+
+                // 緯度と経度を取得
+                latitude = position.coords.latitude;
+                longitude = position.coords.longitude;
+
+                console.log("緯度: " + latitude + ", 経度: " + longitude);
+                map.panTo([latitude, longitude]);
+
+
+            // ここで取得した位置情報を利用できます
+            }, function (error) {
+                // エラー時のコールバック関数
+                switch (error.code) {
+                case error.PERMISSION_DENIED:
+                console.error("位置情報の利用が許可されていません。");
+                break;
+                case error.POSITION_UNAVAILABLE:
+                console.error("位置情報が利用できません。");
+                break;
+                case error.TIMEOUT:
+                console.error("位置情報の取得がタイムアウトしました。");
+                break;
+                case error.UNKNOWN_ERROR:
+                console.error("不明なエラーが発生しました。");
+                break;
+                }
+            });
+        } else {
+            console.error("ブラウザがGeolocation APIをサポートしていません。");
+        }
+
+
+
+
+    </script>
+</body>
+</html>
