@@ -31,13 +31,17 @@
         let longitude = 139.6917; // 例: 東京の経度
 
         // 地図の初期化
-        var map = L.map('map').setView([latitude, longitude], 13); // 初期の中心座標とズームレベル
+        var map = L.map('map').setView([latitude, longitude], 14); // 初期の中心座標とズームレベル
 
         // タイルレイヤーの追加（OpenStreetMapのデフォルトタイル）
-        L.tileLayer('http://{s}.tile.stamen.com/{variant}/{z}/{x}/{y}.png', {
-            attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>',
-            variant: 'toner-lite'
+        L.tileLayer('https://tile.mierune.co.jp/mierune_mono/{z}/{x}/{y}.png', {
+            attribution: 'Maptiles by MIERUNE, Data by OpenStreetMap contributors'
         }).addTo(map);
+
+        // L.tileLayer('http://{s}.tile.stamen.com/{variant}/{z}/{x}/{y}.png', {
+        //     attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>',
+        //     variant: 'toner-lite'
+        // }).addTo(map);
 
         if ("geolocation" in navigator) {
             // ブラウザがGeolocation APIをサポートしているか確認
