@@ -79,6 +79,7 @@ body, html {
     position: fixed;
     top: 0;
     width: 100%;
+    z-index: 1000; 
   }
   
   .modal_bg {
@@ -94,8 +95,8 @@ body, html {
   
   .modalScroll {
     background:rgba(46, 118, 155, 0.8);
-    height: 400px;
-    width: 400px;
+    height: 380px;
+    width: 380px;
     max-height: 800px;
     padding: 10px;
     border-radius: 20px;
@@ -107,4 +108,9 @@ body, html {
     text-align: center;
     padding-top: 10px;
     padding-bottom: 10px;
+  }
+
+  #youtubePlayer {
+    height: 360px;
+    width: 360px;
   }

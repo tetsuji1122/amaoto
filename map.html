@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,78 +19,30 @@
             <i class="fa fa-arrow-circle-left"></i>
         </div>
     </div>
+    <!-- モーダルウィンドウのHTML -->
+    <div class="modal">
+        <div class="modal_bg js-modal-close"></div>
+        <div class="modalScroll">
+            <div class="modal_content">
+                <!-- YouTubeの埋め込みコードをここに追加 -->
+                <iframe id="youtubePlayer" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+    <!-- 地図 -->
     <div id="map"></div>
-
+  
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="script/main.js"></script>
     <script>
-        function toMain() {
-            window.location.href = "index.html";
-        }
-
-        let latitude = 35.6895; // 例: 東京の緯度
-        let longitude = 139.6917; // 例: 東京の経度
-
-        // 地図の初期化
-        var map = L.map('map').setView([latitude, longitude], 14); // 初期の中心座標とズームレベル
-
-        // タイルレイヤーの追加（OpenStreetMapのデフォルトタイル）
-        L.tileLayer('https://tile.mierune.co.jp/mierune_mono/{z}/{x}/{y}.png', {
-            attribution: 'Maptiles by MIERUNE, Data by OpenStreetMap contributors'
-        }).addTo(map);
-
-        // L.tileLayer('http://{s}.tile.stamen.com/{variant}/{z}/{x}/{y}.png', {
-        //     attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>',
-        //     variant: 'toner-lite'
-        // }).addTo(map);
-
-        if ("geolocation" in navigator) {
-            // ブラウザがGeolocation APIをサポートしているか確認
-
-            // 位置情報を取得する関数
-            navigator.geolocation.getCurrentPosition(function (position) {
-                // 成功時のコールバック関数
-
-                // 緯度と経度を取得
-                latitude = position.coords.latitude;
-                longitude = position.coords.longitude;
-
-                console.log("緯度: " + latitude + ", 経度: " + longitude);
-                map.panTo([latitude, longitude]);
-
-
-                var pin = L.icon({
-                    iconUrl: 'img/pin.png', // 新しいアイコン画像のパス
-                    iconSize: [32, 32], // アイコンのサイズ [幅, 高さ]
-                    iconAnchor: [16, 32], // アイコンのアンカー位置 [横, 縦]
-                });
-                var marker = L.marker([latitude, longitude], { icon: pin }).addTo(map);
-                marker.setIcon(pin);
-
-            // ここで取得した位置情報を利用できます
-            }, function (error) {
-                // エラー時のコールバック関数
-                switch (error.code) {
-                case error.PERMISSION_DENIED:
-                console.error("位置情報の利用が許可されていません。");
-                break;
-                case error.POSITION_UNAVAILABLE:
-                console.error("位置情報が利用できません。");
-                break;
-                case error.TIMEOUT:
-                console.error("位置情報の取得がタイムアウトしました。");
-                break;
-                case error.UNKNOWN_ERROR:
-                console.error("不明なエラーが発生しました。");
-                break;
-                }
-            });
-        } else {
-            console.error("ブラウザがGeolocation APIをサポートしていません。");
-        }
-
-
-
-
+        initMap(); //地図の初期化
+        setCurrentLocation();//現在地の取得
+        //モーダルウィンドウを閉じる
+        $(".js-modal-close").on("click", function () {
+            fadeoutModal();
+            return false;
+        });
     </script>
 </body>
 </html>
