@@ -58,6 +58,14 @@
                 map.panTo([latitude, longitude]);
 
 
+                var pin = L.icon({
+                    iconUrl: 'img/pin.png', // 新しいアイコン画像のパス
+                    iconSize: [32, 32], // アイコンのサイズ [幅, 高さ]
+                    iconAnchor: [16, 32], // アイコンのアンカー位置 [横, 縦]
+                });
+                var marker = L.marker([latitude, longitude], { icon: pin }).addTo(map);
+                marker.setIcon(pin);
+
             // ここで取得した位置情報を利用できます
             }, function (error) {
                 // エラー時のコールバック関数

@@ -15,8 +15,8 @@ body, html {
     top: 0;
     left: 0;
     width: 100%;
-    height: 300px;
-    z-index: 1000; /* ロゴを最前面に表示 */
+    height: 180px;
+    z-index: 500; /* ロゴを最前面に表示 */
 }
 
 /* ロゴ画像のスタイル */
@@ -65,34 +65,46 @@ body, html {
 }
 
 /* モーダルウィンドウのスタイル */
+.modalScroll,
+.ScrollContent {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .modal {
-    display: none; /* 初期状態では非表示 */
+    display: none;
+    height: 100vh;
     position: fixed;
-    z-index: 1000;
-    left: 0;
     top: 0;
     width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.7);
-}
-
-.modal-content {
-    background-color: #fff;
-    margin: 10% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 600px;
-}
-
-.close {
+  }
+  
+  .modal_bg {
+    background: rgba(0, 0, 0, 0.32);
+    height: 100vh;
     position: absolute;
-    right: 10px;
-    top: 10px;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-
+    width: 100%;
+  }
+  
+  .js-modal-close {
+    color: #555;
+  }
+  
+  .modalScroll {
+    background:rgba(46, 118, 155, 0.8);
+    height: 400px;
+    width: 400px;
+    max-height: 800px;
+    padding: 10px;
+    border-radius: 20px;
+  }
+  
+  .modal_content {
+    color: rgb(49, 49, 49);
+    text-align: center;
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }

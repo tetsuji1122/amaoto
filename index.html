@@ -37,17 +37,24 @@
         <i id="playButton" class="fas fa-play" style="text-align: center;"></i>
     </div>
     <!-- カメラアイコン -->
-    <div class="right-icon icon-font" onclick="openCamera()">
+    <div class="right-icon icon-font" id="openModalButton">
         <i class="fa fa-video"></i>
     </div>
 </div>
-<!--
-<audio id="music">
-    <source src="audio/rain01.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
-</audio>
--->
-  
+
+<!-- モーダルウィンドウのHTML -->
+<div class="modal">
+  <div class="modal_bg js-modal-close"></div>
+  <div class="modalScroll">
+    <div class="modal_content">
+        <!-- YouTubeの埋め込みコードをここに追加 -->
+        <iframe id="youtubePlayer" width="98%" height="380px" frameborder="0" allowfullscreen></iframe>
+      </div>
+  </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script>
 console.log("処理開始")
 
@@ -55,11 +62,40 @@ function toMap() {
   window.location.href = "map.html";
 }
 
-function openCamera() {
-    // カメラアイコンがクリックされたときの処理を追加
-    alert("カメラアイコンがクリックされました！");
-}
+// YouTube動画のID（URLの最後の部分）を指定
+//var youtubeVideoId = 'TvvG4YfT59Y';
+var youtubeVideoId = 'pmTFyDvr4l4';
 
+$("#openModalButton").on("click", function () {
+  console.log("modal-fadein");
+  $(".modal").fadeIn();
+  var youtubePlayer = document.getElementById('youtubePlayer');
+  youtubePlayer.src = 'https://www.youtube.com/embed/' + youtubeVideoId;
+});
+
+$(".js-modal-close").on("click", function () {
+  console.log("modal-fadeout");
+  $(".modal").fadeOut();
+  var youtubePlayer = document.getElementById('youtubePlayer');
+  youtubePlayer.src = '';
+  return false;
+});
+
+// // モーダルウィンドウを開く
+// document.getElementById('openModalButton').addEventListener('click', function () {
+//   var modal = document.getElementById('myModal');
+//   var youtubePlayer = document.getElementById('youtubePlayer');
+//   youtubePlayer.src = 'https://www.youtube.com/embed/' + youtubeVideoId;
+//   modal.style.display = 'block';
+// });
+
+// // モーダルウィンドウを閉じる
+// document.getElementById('closeModalButton').addEventListener('click', function () {
+//   var modal = document.getElementById('myModal');
+//   var youtubePlayer = document.getElementById('youtubePlayer');
+//   youtubePlayer.src = '';
+//   modal.style.display = 'none';
+// });
 
 //気象情報を取得
 function rain(){
@@ -91,12 +127,14 @@ function rain(){
   let soundEffects = {};
   soundEffects[0] = new Audio('audio/rain01.mp3');
   soundEffects[1] = new Audio('audio/rain02.mp3');
+  soundEffects[2] = new Audio('audio/rain03.mp3');
+  soundEffects[3] = new Audio('audio/rain04.mp3');
   let cnt = 0;
 
   playButton.addEventListener('click', function() {
     if (music == null || music.paused) {
       cnt++;
-      music = soundEffects[cnt%2];
+      music = soundEffects[cnt%4];
       music.play();
       playButton.classList.remove('fa-play');
       playButton.classList.add('fa-pause');
