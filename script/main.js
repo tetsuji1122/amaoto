@@ -24,8 +24,10 @@ function play() {
 
 //気象情報を取得
 function rain(lat,lon){
-    if (!config || config.apikey == "") {
-        console.log("apikeyが設定されていません");
+    try {
+        console.log(config);
+    } catch (error){
+        console.log("apikeyが設定されていません:"+error);
         return;
     }
     //APIキー
