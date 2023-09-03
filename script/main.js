@@ -4,16 +4,17 @@ soundEffects[0] = new Audio('audio/rain01.mp3');
 soundEffects[1] = new Audio('audio/rain02.mp3');
 soundEffects[2] = new Audio('audio/rain03.mp3');
 soundEffects[3] = new Audio('audio/rain04.mp3');
-let cnt = 0;
+let soundcnt = 0;
+let currentPrecipitation = 0; //降水量
 
 //雨の音をならす
 function play() {
     if (music == null || music.paused) {
-        cnt++;
-        music = soundEffects[cnt%4];
+        music = soundEffects[soundcnt%4];
         music.play();
         playButton.classList.remove('fa-play');
         playButton.classList.add('fa-pause');
+        soundcnt++;
     } else {
         music.pause();
         playButton.classList.remove('fa-pause');
@@ -22,30 +23,52 @@ function play() {
 }
 
 //気象情報を取得
-function rain(){
-    // OpenWeatherMap APIキー
-    const apiKey = 'APIKEY';
+function rain(lat,lon){
+    if (!config || config.apikey == "") {
+        console.log("apikeyが設定されていません");
+        return;
+    }
+    //APIキー
+    const apiKey = config.apikey;
     // 位置情報（緯度と経度）
-    const latitude = 35.6895; // 例: 東京の緯度
-    const longitude = 139.6917; // 例: 東京の経度
-
-    // API呼び出し
-    const apiUrl = `https://api.openweathermap.org/data/3.0/onecall?lat=${latitude}&lon=${longitude}&appid=${apiKey}`;
-    fetch(apiUrl)
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-        if (data.weather && data.weather[0] && data.weather[0].main === 'Rain') {
-        console.log('降水があります');
-        } else {
-        console.log('降水はありません');
-        }
-    })
-    .catch(error => {
-        console.error('API呼び出しエラー:', error);
-    });
+    const latitude = lat; 
+    const longitude = lon; 
+    loadstart();
+    //CROS対応のためscriptタグを生成して、コールバック関数で値を取得する
+    const apiUrl = `https://api.yumake.jp/1.2/forecastMsm.php?lat=${latitude}&lon=${longitude}&key=${apiKey}&format=JSONP&callback=myCallbackFunction`;
+    var script = document.createElement("script");
+    script.src = apiUrl;
+    document.head.appendChild(script);
 }
 
+//callback関数にて予報データを取得する
+function myCallbackFunction(data) {
+    //dataチェック
+    if (!data || data == null || data.status != "success") {
+        console.log("気象データが取得できませんでした");
+        console.log(data);
+        return;
+    }
+    //取得した予報時間と現在時刻をチェックして、現在時刻に近い予報を取得する
+    let forecasts = data.forecast;
+    // 現在の時刻を取得
+    let currentDate = new Date();
+    for (let i in forecasts) {
+        let forecast = forecasts[i];
+        //console.log(forecast);
+        // 指定した日時を作成
+        var targetDate = new Date(forecast.forecastDateTime);
+        if (currentDate <= targetDate) {//現在時刻以降の最初の天気予報を取得
+            //console.log(currentDate+":"+targetDate);
+            //降水量をセットする
+            currentPrecipitation = (forecast.precipitation == 999.99) ? 0 : forecast.precipitation;
+            console.log(targetDate+"の降水量（予報）は"+currentPrecipitation+"ミリです");
+            break;//ループ終了
+        }
+    }
+    loadend();
+}
+  
 
 //地図画面へ
 function toMap() {
@@ -57,8 +80,11 @@ function toMain() {
     window.location.href = "index.html";
 }
 
+
+
+
 // YouTube動画のID（URLの最後の部分）を指定
-var youtubeVideoId = 'pmTFyDvr4l4';
+var youtubeVideoId = '';
 
 //Youtubeのモーダルウィンドウを上げる
 function fadeinModal(youtubeid) {
@@ -79,11 +105,16 @@ function fadeoutModal () {
   
 
 //地図データの取得用
-
-let currentlatitude = 35.6895; // 例: 東京の緯度
+//現在地の設定
+let currentlatitude = 35.6337; // 例: 東京の緯度
 let currentlongitude = 139.6917; // 例: 東京の経度
+function setCurrentLatLon(lat,lon) {
+    // currentlatitude = lat;
+    // currentlongitude = lon;
+}
+
 var map = null;
-var cameraMarker = [];
+var cameraMarker = [];//カメラのマーカーをセットする
 var pin ;
 var pin_video;
 var pin_video_off;
@@ -127,15 +158,25 @@ function putCameraData(data) {
     cameraMarker = [];
     var cnt = 0;
     for (var item of data) {
-        if (item.youtubeid && item.youtubeid != "") {
-            cameraMarker[cnt] = L.marker([item.lat, item.lon], { icon: pin_video }).addTo(map);
-            cameraMarker[cnt].on('click',function(e) {  clickPinVideo(e); });
-            cameraMarker[cnt].item = item;//ピンの情報をセットする
-        } else {
-            cameraMarker[cnt] = L.marker([item.lat, item.lon], { icon: pin_video_off }).addTo(map);
-        }
+        cameraMarker[cnt] = addMaker(item);
         cnt++;
     }
+}
+
+//マーカーの追加
+function addMaker(item) {
+    let marker = null;
+    if (item.youtubeid && item.youtubeid != "") {
+        let pin_icon = pin_video;
+        //一番近いカメラのみアイコンを変える
+        if (youtubeVideoId != null && youtubeVideoId == item.youtubeid) pin_icon = pin_video_on; 
+        marker = L.marker([item.lat, item.lon], { icon: pin_icon }).addTo(map);
+        marker.on('click',function(e) {  clickPinVideo(e); });
+        marker.item = item;//ピンの情報をセットする
+    } else {
+        marker = L.marker([item.lat, item.lon], { icon: pin_video_off }).addTo(map);
+    }
+    return marker;
 }
 
 //ピンをクリックイベントで発火する関数
@@ -155,13 +196,12 @@ function setCurrentLocation(){
             // 成功時のコールバック関数
 
             // 緯度と経度を取得
-            //currentlatitude = position.coords.latitude;
-            //currentlongitude = position.coords.longitude;
+            setCurrentLatLon(position.coords.latitude,position.coords.longitude);
 
             //現在地にピンを差して移動する
             console.log("緯度: " + currentlatitude + ", 経度: " + currentlongitude);
             var marker = L.marker([currentlatitude, currentlongitude], { icon: pin }).addTo(map);
-            map.panTo([latitude, longitude]);
+            map.panTo([currentlatitude, currentlongitude]);
 
         // ここで取得した位置情報を利用できます
         }, function (error) {
@@ -189,6 +229,7 @@ function setCurrentLocation(){
 //カメラデータの読み込み
 var cameraData = null;
 if (cameraData == null) {
+    loadstart();
     fetch('data/camera.json')
     .then(response => {
         if (!response.ok) {
@@ -208,13 +249,12 @@ if (cameraData == null) {
 }
 
 
-
 // 現在地からもっとも近いカメラを取得
 function nearbyCamera() {
+    console.log("nearbyCamera is start");
     navigator.geolocation.getCurrentPosition(function (position) {
         // 現在の緯度経度を設定
-        //currentlatitude = position.coords.latitude;
-        //currentlongitude = position.coords.longitude;
+        setCurrentLatLon(position.coords.latitude,position.coords.longitude);
 
         // 最も近い目的地とその距離を初期化
         var nearestCamera = null;
@@ -231,12 +271,18 @@ function nearbyCamera() {
     
         // 最も近い目的地の情報を表示
         if (nearestCamera) {
-            console.log('最も近い目的地:', nearestCamera.title);
-            console.log('距離:', nearestDistance.toFixed(2), 'メートル');
+            console.log('最も近いライブ映像:', nearestCamera.title);
+            console.log('距離:', nearestDistance.toFixed(2), 'km');
             youtubeVideoId = nearestCamera.youtubeid;
+            changeNearCameraPin();//カメラのアイコンを変更
         } else {
-            console.log('近くの目的地はありません。');
+            console.log('近くのライブ映像はありません。');
         }
+        loadend();
+
+        //降水量の取得
+        if (map == null) rain(currentlatitude,currentlongitude);//ここのコーディングは検討必要
+
     });    
 }
 
@@ -257,6 +303,27 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 
 //一番近いカメラ
 function changeNearCameraPin() {
+    if (!cameraMarker || cameraMarker.length == 0) return;//カメラのマーカーがセットされていなければ終了
+    cameraMarker.forEach(function (marker) {
+        //console.log(marker);
+        if (marker.item && marker.item.youtubeid == youtubeVideoId) {
+            let item = marker.item;
+            console.log(item);
+            marker.remove();//削除して追加する
+            marker = addMaker(item);
+            return;
+        }
+    });
 
+}
+
+function loadstart() {
+    console.log("loadstart");
+    document.getElementById("spinner").style.display = "block";
+}
+
+function loadend() {
+    console.log("loadend");
+    document.getElementById("spinner").style.display = "none";
 }
 
